@@ -120,8 +120,10 @@ public:
 	float ColorLuminance;
 
 	TArray<class AIGVNodeActor*> PickRayDistSortedNodes;
+	TArray<FIGVEdge*> PickRayDistSortedEdges;
 	class AIGVNodeActor* LastNearestNode;
 	class AIGVNodeActor* LastPickedNode;
+	FIGVEdge *LastPickedEdge;
 
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, SaveGame,
 			  Category = ImmersiveGraphVisualization)
@@ -183,7 +185,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = ImmersiveGraphVisualization)
 	float GetAspectRatio();
-protected:
+
+	UFUNCTION(BlueprintCallable, Category = ImmersiveGraphVisualization)
+	float GetFieldOfView();
+
+	UFUNCTION(BlueprintCallable, Category = ImmersiveGraphVisualization)
+	void ResetAmbientOcclusion();
+
+	
+//protected:
 	void SetupNodes();
 	void SetupEdges();
 	void SetupClusters();
@@ -193,7 +203,7 @@ protected:
 
 	void UpdateColors();
 
-	void ResetAmbientOcclusion();
+	//void ResetAmbientOcclusion();
 
 	void UpdateInteraction();
 	void UpdateNodeDistanceToPickRay();

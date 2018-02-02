@@ -352,8 +352,8 @@ void FLeapPalmData::TranslatePalm(const FVector& InTranslation)
 FLeapOptions::FLeapOptions()
 {
 	//Good Vive settings used as defaults
-	Mode = LEAP_MODE_DESKTOP;
-	TrackingFidelity = LEAP_NORMAL;
+	Mode = LEAP_MODE_VR;//LEAP_MODE_DESKTOP
+	TrackingFidelity = LEAP_SMOOTH;//LEAP_NORMAL
 	bUseTimeWarp = true;
 	bUseInterpolation = true;
 	bTransformOriginToHMD = true;
@@ -361,7 +361,7 @@ FLeapOptions::FLeapOptions()
 	TimewarpFactor = 1.f;
 	HandInterpFactor = 0.f;
 	FingerInterpFactor = 0.f;
-	HMDOffset = FVector(9.0, 0, 0);		//Vive default, for oculus use 8,0,0
+	HMDOffset = FVector(8.0, 0, 0);		//Vive default, for oculus use 8,0,0
 	bEnableImageStreaming = false;		//default image streaming to off
 }
 

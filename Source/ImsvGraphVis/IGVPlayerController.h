@@ -34,6 +34,9 @@ public:
 	void IGV_SetTreemapNesting(float Value);
 
 	//UFUNCTION(exec)
+	void IGV_SetR(float Value);
+
+	//UFUNCTION(exec)
 	void IGV_SetHalo(bool const Value);
 
 	ULeapComponent *LeapComponet;
@@ -48,5 +51,13 @@ public:
 
 	bool haveActed;
 
-	void OnJudge();
+	int OnJudge();
+
+
+	int gestureID ;
+
+	FVector LeftHandPosition;
+	FVector RightHandPosition;
+	FVector LastLeftHandPosition;
+	FVector LastRightHandPosition;
 };

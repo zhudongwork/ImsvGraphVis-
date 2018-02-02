@@ -9,17 +9,18 @@
 
 FIGVEdge::FIGVEdge(AIGVGraphActor* const InGraphActor)
 	: GraphActor(InGraphActor),
-	  SourceIdx(-1),
-	  TargetIdx(-1),
-	  SourceNode(nullptr),
-	  TargetNode(nullptr),
-	  LowestCommonAncestor(nullptr),
-	  Clusters(),
-	  ClusterLevels(),
-	  SplineControlPointData(),
-	  MeshData(),
-	  RenderGroup(EIGVEdgeRenderGroup::Default),
-	  bUpdateMeshRequired(false)
+	SourceIdx(-1),
+	TargetIdx(-1),
+	SourceNode(nullptr),
+	TargetNode(nullptr),
+	LowestCommonAncestor(nullptr),
+	Clusters(),
+	ClusterLevels(),
+	SplineControlPointData(),
+	MeshData(),
+	RenderGroup(EIGVEdgeRenderGroup::Default),
+	bUpdateMeshRequired(false),
+	DistanceToPickRay(FLT_MAX)
 {
 }
 
@@ -221,6 +222,7 @@ void FIGVEdge::BeginTransition()
 			ClusterLevelsAfterTransition.Emplace(Cluster->DefaultLevel());
 		}
 	}
+	//IGV_LOG_S(Warning, TEXT("Finished"));
 }
 
 void FIGVEdge::OnHighlightTransitionTimelineUpdate(ETimelineDirection::Type const Direction,
@@ -239,4 +241,31 @@ void FIGVEdge::OnHighlightTransitionTimelineUpdate(ETimelineDirection::Type cons
 void FIGVEdge::OnHighlightTransitionTimelineFinished(ETimelineDirection::Type const Direction)
 {
 	bInTransition = false;
+}
+
+bool FIGVEdge::IsPicked() const
+{
+	//GraphActor->PickDistanceThreshold
+	IGV_LOG_S(Warning, TEXT("Edge    DistanceToPickRay:%.1f"), DistanceToPickRay);
+	return DistanceToPickRay < GraphActor->PickDistanceThreshold;
+	
+}
+
+void FIGVEdge::OnLeftMouseButtonReleased()
+{
+	check(IsPicked());
+	//if(IsPicked()) IGV_LOG_S(Warning, TEXT("CHECK"));
+	//BeginTransition();
+	//SourceNode->OnCheckEdge();
+	//TargetNode->OnCheckEdge();
+	//SourceNode->BeginCheckEdgeHighlighted();
+	//TargetNode->BeginCheckEdgeHighlighted();
+	/*if (bIsHighlighted)
+	{
+		EndHighlighted();
+	}
+	else
+	{
+		BeginHighlighted();
+	}*/
 }

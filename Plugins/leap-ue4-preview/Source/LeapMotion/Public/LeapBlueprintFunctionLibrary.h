@@ -15,7 +15,7 @@ class ULeapBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 
 	/** Set basic global leap tracking options */
 	UFUNCTION(BlueprintCallable, Category = "Leap Motion Functions")
-	static void SetLeapMode(ELeapMode Mode, ELeapTrackingFidelity Fidelity = ELeapTrackingFidelity::LEAP_NORMAL);
+	static void SetLeapMode(ELeapMode Mode, ELeapTrackingFidelity Fidelity = ELeapTrackingFidelity::LEAP_SMOOTH);
 
 	/** Set global leap options */
 	UFUNCTION(BlueprintCallable, Category = "Leap Motion Functions")

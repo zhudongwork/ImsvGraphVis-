@@ -41,7 +41,7 @@ public:
 	EIGVEdgeRenderGroup::Type RenderGroup;
 	bool bInTransition;
 	bool bUpdateMeshRequired;
-
+	
 public:
 	FIGVEdge() = default;
 	FIGVEdge(class AIGVGraphActor* const InGraphActor);
@@ -62,7 +62,7 @@ protected:
 
 public:
 	float BundlingStrength() const;
-
+	float DistanceToPickRay;
 	bool HasHighlightedNode() const;
 	bool HasNeighborHighlightedNode() const;
 	bool HasBothHighlightedNodes() const;
@@ -71,7 +71,9 @@ public:
 	bool IsHighlightedRenderGroup() const;
 	bool IsRemainedRenderGroup() const;
 	void UpdateRenderGroup();
-
+	FVector EdgeLocation;
+	bool IsPicked() const;
+	void OnLeftMouseButtonReleased();
 	void BeginTransition();
 	void OnHighlightTransitionTimelineUpdate(ETimelineDirection::Type const Direction,
 											 float const Alpha);

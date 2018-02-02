@@ -48,6 +48,7 @@ AIGVGraphActor::AIGVGraphActor()
 	  ColorChroma(.5f),
 	  ColorLuminance(.5f),
 	  PickRayDistSortedNodes(),
+	  PickRayDistSortedEdges(),
 	  LastNearestNode(nullptr),
 	  LastPickedNode(nullptr),
 	  PickDistanceThreshold(30),
@@ -147,8 +148,10 @@ void AIGVGraphActor::EmptyGraph()
 	Clusters.Empty();
 
 	PickRayDistSortedNodes.Empty();
+	PickRayDistSortedNodes.Empty();
 	LastNearestNode = nullptr;
 	LastPickedNode = nullptr;
+	LastPickedEdge = nullptr;
 }
 
 void AIGVGraphActor::SetupGraph()
@@ -184,6 +187,9 @@ void AIGVGraphActor::SetupEdges()
 
 		Edge.SourceNode->Neighbors.Add(Edge.TargetNode);
 		Edge.TargetNode->Neighbors.Add(Edge.SourceNode);
+		
+		Edge.EdgeLocation = (Edge.SourceNode->GetActorLocation() + Edge.TargetNode->GetActorLocation()) / 2;
+		PickRayDistSortedEdges.Add(&Edge);
 
 		IGV_LOG(Log, TEXT("Edge: %s"), *Edge.ToString());
 	}
@@ -280,6 +286,7 @@ void AIGVGraphActor::NormalizeNodePosition()
 		P /= BoundExtent;
 		P *= PlanarExtent;
 		Node->SetPos3D();
+		Node->PlayFromStartHighlightTransitionTimeline();
 	}
 
 	RootCluster->SetPosNonLeaf();
@@ -293,7 +300,15 @@ void AIGVGraphActor::UpdateTreemapLayout()
 
 	FIGVTreemapLayout Layout(this);
 	Layout.Compute();
-
+	for (AIGVNodeActor* const Node : Nodes)
+	{
+		/*FVector2D& P = Node->Pos2D;
+		P -= BoundCenter;
+		P /= BoundExtent;
+		P *= PlanarExtent;
+		Node->SetPos3D();*/
+		Node->PlayFromStartHighlightTransitionTimeline();
+	}
 	NormalizeNodePosition();
 }
 
@@ -421,11 +436,12 @@ void AIGVGraphActor::ResetAmbientOcclusion()
 
 void AIGVGraphActor::UpdateInteraction()
 {
-	if (PickRayDistSortedNodes.Num() == 0) return;
+	if (PickRayDistSortedNodes.Num() == 0 && PickRayDistSortedEdges.Num()) return;
 
 	UpdateNodeDistanceToPickRay();
 	AIGVNodeActor* const NearestNode = PickRayDistSortedNodes[0];
-
+	FIGVEdge *NearestEdge = PickRayDistSortedEdges[0];
+	LastPickedEdge = NearestEdge;
 	// update nearest node
 	if (LastNearestNode != nullptr)  // has previous nearest node actor
 	{
@@ -481,9 +497,20 @@ void AIGVGraphActor::UpdateNodeDistanceToPickRay()
 			Node->GetActorLocation(), Pawn->PickRayDirection, Pawn->PickRayOrigin);
 	}
 
+	/*for (FIGVEdge& Edge : Edges)
+	{
+		Edge.DistanceToPickRay= FMath::PointDistToLine(
+			Edge.EdgeLocation, Pawn->PickRayDirection, Pawn->PickRayOrigin);
+
+	}*/
+
 	PickRayDistSortedNodes.Sort([](AIGVNodeActor const& A, AIGVNodeActor const& B) {
 		return A.DistanceToPickRay < B.DistanceToPickRay;
 	});
+
+	/*PickRayDistSortedEdges.Sort([](FIGVEdge const& A, FIGVEdge const& B) {
+		return A.DistanceToPickRay < B.DistanceToPickRay;
+	});*/
 }
 
 void AIGVGraphActor::OnLeftMouseButtonReleased()
@@ -492,6 +519,11 @@ void AIGVGraphActor::OnLeftMouseButtonReleased()
 	{
 		LastPickedNode->OnLeftMouseButtonReleased();
 	}
+	/*if (LastPickedEdge != nullptr)
+	{
+		
+		LastPickedEdge->OnLeftMouseButtonReleased();
+	}*/
 }
 
 void AIGVGraphActor::SetHalo(bool const bValue)
@@ -512,4 +544,9 @@ float AIGVGraphActor::GetTreemapNesting()
 float AIGVGraphActor::GetAspectRatio()
 {
 	return this->AspectRatio;
+}
+
+float AIGVGraphActor::GetFieldOfView()
+{
+	return this->FieldOfView;
 }

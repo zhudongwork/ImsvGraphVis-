@@ -64,4 +64,5 @@ public:
 	FVector LastRightHandPosition;
 	bool haveSetLastHandPosition;
 	void OnLeftMouseButtonReleased();
+	FVector AdjustForHMD(FVector In);
 };

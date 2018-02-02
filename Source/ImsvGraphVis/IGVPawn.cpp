@@ -6,12 +6,13 @@
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
-
+#include "IHeadMountedDisplay.h"
 #include "IGVGraphActor.h"
 #include "IGVLog.h"
 
 AIGVPawn::AIGVPawn() : CursorDistanceScale(0.4)
 {
+	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	haveSetLastHandPosition = false;
@@ -47,6 +48,8 @@ AIGVPawn::AIGVPawn() : CursorDistanceScale(0.4)
 	HelpTextRenderComponent->SetRelativeLocation(FVector(500, 0, 0));
 	HelpTextRenderComponent->SetRelativeRotation((-FVector::ForwardVector).Rotation());
 	HelpTextRenderComponent->SetVisibility(false);
+	
+
 }
 
 void AIGVPawn::BeginPlay()
@@ -100,14 +103,10 @@ void AIGVPawn::Tick(float DeltaTime)
 					OnLeftMouseButtonReleased();
 				}
 			}
-			//if(fingers[1].IsExtended) IGV_LOG_S(Warning, TEXT("fingers[1].IsExtended"));
-			//IGV_LOG_S(Warning, TEXT("hand.GrabStrength: %.2f"), hand.GrabStrength);
-			/*if (fingers[1].IsExtended && hand.GrabStrength > 0.5)
+			else
 			{
-				IGV_LOG_S(Warning, TEXT("66666666666"));
-				continue;
-			}*/
-			
+				LastRightHandPosition = rightHandPosition;
+			}
 		}
 		else
 		{
@@ -145,6 +144,7 @@ void AIGVPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	/*FString RightHandLabel = FString::Printf(TEXT("RightHand"));
 	GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, RightHandLabel);*/
 	
+	
 }
 
 void AIGVPawn::AddControllerYawInput(float Value)
@@ -168,17 +168,20 @@ void AIGVPawn::AddControllerPitchInput(float Value)
 void AIGVPawn::UpdateCursor()
 {
 	APlayerController* const PlayerController = Cast<APlayerController>(Controller);
-
-	PickRayOrigin = GetActorLocation();
+	/*FQuat OrientationQuat;
+	FVector Position;
+	GEngine->HMDDevice->GetCurrentOrientationAndPosition(OrientationQuat, Position);*/
+	PickRayOrigin = GetActorLocation() ;
 	PickRayDirection = PickRayRotation.Vector().GetSafeNormal();
-
+	FVector Position; 
+	Position.Rotation();
 	FVector const CursorWorldPosition =
 		PickRayOrigin + CursorDistanceScale * GraphActor->GetSphereRadius() * PickRayDirection;
 
-	//CursorMeshComponent->SetWorldLocation(CursorWorldPosition);
-	//CursorMeshComponent->SetWorldRotation(PickRayRotation);
-	CursorMeshComponent->SetWorldLocation(fingerTipPosition);
-	CursorMeshComponent->SetWorldRotation(fingerTipRotation);
+	CursorMeshComponent->SetWorldLocation(CursorWorldPosition);
+	CursorMeshComponent->SetWorldRotation(PickRayRotation);
+	//CursorMeshComponent->SetWorldLocation(fingerTipPosition);
+	//CursorMeshComponent->SetWorldRotation(fingerTipRotation);
 	if ((GetViewRotation().Vector() | PickRayDirection) < 0.76604444311 /* cos 40 deg */)
 	{
 		CursorDirectionIndicatorMeshComponent->SetVisibility(true);
@@ -202,5 +205,30 @@ void AIGVPawn::OnLeftMouseButtonReleased()
 	if (GraphActor)
 	{
 		GraphActor->OnLeftMouseButtonReleased();
+	}
+}
+
+FVector AIGVPawn::AdjustForHMD(FVector In)
+{
+	if (GEngine->HMDDevice.IsValid())
+	{
+		FQuat OrientationQuat;
+		FVector Position;
+		GEngine->HMDDevice->GetCurrentOrientationAndPosition(OrientationQuat, Position);
+		
+		FVector Out = OrientationQuat.RotateVector(In);
+		/*if (LeapShouldAdjustPositionForHMD)
+		{
+			if (LeapShouldAdjustForMountOffset)
+			{
+				Position += OrientationQuat.RotateVector(LeapMountOffset);
+			}
+			Out += Position;
+		}*/
+		return Out;
+	}
+	else
+	{
+		return In;
 	}
 }

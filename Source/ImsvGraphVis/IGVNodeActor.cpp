@@ -58,6 +58,7 @@ void AIGVNodeActor::Init(AIGVGraphActor* const InGraphActor)
 
 	LevelScale = LevelScaleBeforeTransition = LevelScaleAfterTransition =
 		GraphActor->DefaultLevelScale;
+	
 }
 
 void AIGVNodeActor::BeginPlay()
@@ -88,6 +89,7 @@ void AIGVNodeActor::SetPos3D()
 	Pos3D = GraphActor->Project(Pos2D);
 	RootComponent->SetRelativeLocation(Pos3D * LevelScale * GraphActor->GetSphereRadius());
 	UpdateRotation();
+	
 }
 
 void AIGVNodeActor::SetColor(FLinearColor const& C)
@@ -114,6 +116,7 @@ void AIGVNodeActor::UpdateRotation()
 
 bool AIGVNodeActor::IsPicked() const
 {
+	//IGV_LOG_S(Warning, TEXT("Node    DistanceToPickRay:%.1f"), DistanceToPickRay);
 	return DistanceToPickRay < GraphActor->PickDistanceThreshold;
 }
 
@@ -140,7 +143,6 @@ void AIGVNodeActor::BeginHighlighted()
 	bIsHighlighted = true;
 	SetHalo(true);
 	TextRenderComponent->SetVisibility(true);
-
 	LevelScaleAfterTransition = GraphActor->HighlightedLevelScale;
 	BeginTransition();
 
@@ -148,6 +150,15 @@ void AIGVNodeActor::BeginHighlighted()
 	{
 		Neighbor->BeginNeighborHighlighted();
 	}
+}
+
+void AIGVNodeActor::BeginCheckEdgeHighlighted()
+{
+	bIsHighlighted = true;
+	SetHalo(true);
+	TextRenderComponent->SetVisibility(true);
+	LevelScaleAfterTransition = GraphActor->HighlightedLevelScale;
+	BeginTransition();
 }
 
 void AIGVNodeActor::EndHighlighted()
@@ -216,14 +227,14 @@ void AIGVNodeActor::BeginTransition()
 	{
 		Edge->BeginTransition();
 	}
-
+	//IGV_LOG_S(Warning, TEXT("CHECK"));
 	PlayFromStartHighlightTransitionTimeline();
 }
 
 void AIGVNodeActor::OnLeftMouseButtonReleased()
 {
 	check(IsPicked());
-
+	//if (IsPicked()) IGV_LOG_S(Warning, TEXT("CHECK"));
 	if (bIsHighlighted)
 	{
 		EndHighlighted();
@@ -231,6 +242,18 @@ void AIGVNodeActor::OnLeftMouseButtonReleased()
 	else
 	{
 		BeginHighlighted();
+	}
+}
+
+void AIGVNodeActor::OnCheckEdge()
+{
+	if (bIsHighlighted)
+	{
+		EndHighlighted();
+	}
+	else
+	{
+		BeginCheckEdgeHighlighted();
 	}
 }
 

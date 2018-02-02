@@ -89,6 +89,9 @@ public:
 	void BeginHighlighted();
 	void EndHighlighted();
 
+	void BeginCheckEdgeHighlighted();
+	void EndCheckEdgeHighlighted();
+
 	void BeginNeighborHighlighted();
 	void EndNeighborHighlighted();
 
@@ -97,6 +100,8 @@ public:
 	void BeginTransition();
 
 	void OnLeftMouseButtonReleased();
+
+	void OnCheckEdge();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = ImmersiveGraphVisualization)
 	void PlayFromStartHighlightTransitionTimeline();
